@@ -1,14 +1,14 @@
 {
   "version": "1.0.0",
-  "name": "Connector template",
+  "name": "Connector deliveroo",
   "type": "konnector",
   "language": "node",
-  "icon": "icon.png",
-  "slug": "template",
-  "source": "git://github.com/konnectors/cozy-konnector-template.git",
+  "icon": "icon.jpg",
+  "slug": "deliveroo",
+  "source": "git://github.com/konnectors/deliveroo.git",
   "editor": "Cozy",
   "vendor_link": "Link to the target website",
-  "categories": ["other"],
+  "categories": ["online_services"],
   "fields": {
     "login": {
       "type": "text"
@@ -49,8 +49,8 @@
   "langs": ["fr", "en"],
   "locales": {
     "fr": {
-      "short_description": "Template de connecteur",
-      "long_description": "Ce template récupère une liste de livres sur un site de scraping",
+      "short_description": "Connecteur deliveroo",
+      "long_description": "Ce connecteur récupère une liste de factures sur le site https://deliveroo.fr",
       "permissions": {
         "bank operations": {
           "description": "Utilisé pour relier les factures à des operations bancaires"
@@ -67,8 +67,8 @@
       }
     },
     "en": {
-      "short_description": "Connector template",
-      "long_description": "This template fetches a list of books from a scraping website",
+      "short_description": "Connector deliveroo",
+      "long_description": "This connector fetches a list of invoices from https://deliveroo.fr",
       "permissions": {
         "bank operations": {
           "description": "Required to link bank operations to bills"
