@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "name": "Connector deliveroo",
+  "name": "Deliveroo",
   "type": "konnector",
   "language": "node",
   "icon": "icon.jpg",
