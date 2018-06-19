@@ -7,7 +7,7 @@
   "slug": "deliveroo",
   "source": "git://github.com/konnectors/deliveroo.git",
   "editor": "Cozy",
-  "vendor_link": "Link to the target website",
+  "vendor_link": "https://deliveroo.fr/fr/",
   "categories": ["online_services"],
   "fields": {
     "login": {
