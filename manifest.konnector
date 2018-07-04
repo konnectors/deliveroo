@@ -85,5 +85,6 @@
       }
     }
   },
+  "banksTransactionRegExp": "\\bdeliveroo\\b",
   "manifest_version": "2"
 }
