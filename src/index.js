@@ -2,8 +2,18 @@ process.env.SENTRY_DSN =
   process.env.SENTRY_DSN ||
   'https://b5cfd787f04f49c5bf862f481f153c0b:3224b3ba0f9f4930acf58cc7ee262740@sentry.cozycloud.cc/70'
 
-const { BaseKonnector, scrape, saveBills, log } = require('cozy-konnector-libs')
-const cheerio = require('cheerio')
+const {
+  BaseKonnector,
+  scrape,
+  saveBills,
+  log,
+  requestFactory
+} = require('cozy-konnector-libs')
+let request = requestFactory({
+  cheerio: true,
+  json: false,
+  jar: true
+})
 const URL = require('url').URL
 const moment = require('moment')
 moment.locale('fr')
@@ -12,49 +22,21 @@ const baseURL = new URL('https://deliveroo.fr/fr/login')
 
 module.exports = new BaseKonnector(start)
 
-const requestPromise = require('request-promise')
-const cookiejar = requestPromise.jar()
-
-const request = (() => {
-  let rp
-  function init() {
-    requestPromise.defaults({ jar: cookiejar })
-    return requestPromise
-  }
-  return (() => {
-    if (!rp) {
-      rp = init()
-    }
-    return rp
-  })()
-})()
-
 async function start(fields) {
   log('info', 'Authenticating ...')
   await authenticate(fields.login, fields.password)
   log('info', 'Successfully logged in')
   log('info', 'Fetching the list of documents')
   const $ = await request({
-    uri: `${baseURL.origin}/fr/orders`,
-    transform: body => cheerio.load(body),
-    jar: cookiejar
+    uri: `${baseURL.origin}/fr/orders`
   })
   log('info', 'Parsing list of documents')
   const documents = await parseDocuments($)
 
   log('info', 'Saving data to Cozy')
-  await saveBills(
-    documents.map(entry => ({
-      ...entry,
-      requestOptions: {
-        jar: cookiejar
-      }
-    })),
-    fields.folderPath,
-    {
-      identifiers: ['deliveroo']
-    }
-  )
+  await saveBills(documents, fields.folderPath, {
+    identifiers: ['deliveroo']
+  })
 }
 
 async function authenticate(username, password) {
@@ -70,8 +52,8 @@ async function authenticate(username, password) {
       'x-csrf-token': $('meta[name="csrf-token"]').attr('content'),
       'content-type': 'application/json;charset=UTF-8'
     }),
-    validate: response => response && JSON.parse(response.body).user.id,
-    debug: false
+    parse: 'json',
+    validate: json => json && json.user.id
   }
 
   return await signin(options)
@@ -86,18 +68,7 @@ async function signin({
   validate = () => false
 }) {
   const loginurl = baseURL.href
-  const loginpage = await request({
-    uri: loginurl,
-    resolveWithFullResponse: true,
-    transform: (body, response, resolveWithFullResponse) =>
-      resolveWithFullResponse
-        ? { ...response, parsedBody: cheerio.load(body) }
-        : cheerio.load(body),
-    jar: cookiejar
-  }).catch(err => {
-    log('error', err)
-  })
-  const $ = loginpage.parsedBody
+  const $ = await request(loginurl)
   const formaction = $(formselector).attr('action')
   const formurl = `${baseURL.origin}${formaction}`
   const form = {
@@ -109,17 +80,23 @@ async function signin({
     )]: password
   }
   const headers = generateHeader($)
-  const response = await request({
+  request = requestFactory({
+    cheerio: false,
+    json: true,
+    jar: true
+  })
+  const json = await request({
     method: 'POST',
     uri: formurl,
     form,
-    headers,
-    resolveWithFullResponse: true,
-    jar: cookiejar
-  }).catch(err => {
-    log('error', err)
+    headers
   })
-  return validate(response)
+  request = requestFactory({
+    cheerio: true,
+    json: false,
+    jar: true
+  })
+  return validate(json)
 }
 
 function parseDocuments($) {
@@ -145,7 +122,7 @@ function parseDocuments($) {
         parse: src => src.split('/').pop()
       }
     },
-    'ul.results-list li'
+    'ul.results-list li:has(.status-delivered)'
   )
   return docs.map(doc => ({
     ...doc,
