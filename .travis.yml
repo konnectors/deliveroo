@@ -1,0 +1,41 @@
+language: node_js
+node_js:
+- '8'
+env:
+  global:
+  - GH_USER_EMAIL="travis@example.org"
+  - GH_USER_NAME="cozy-bot"
+  - DEPLOY_REPOSITORY="git@github.com:konnectors/deliveroo.git"
+  - secure: gaeolxiuoo0w6nTRgQF45XxF7U4fxm9e+VIsdjCXNT3DsU0EIdGHMEx24bxuh83Drdjgc6ENTv4Q6Q9vMJe8atNsdPDGTiIBZNpveTrdT3c96Agdd4Sve3h2NaU+noKctNQSIFF+nweJ89V5cbYGNdQD+RDlsj2Dz0uOOD+wxtdiRBhCJcN/JUa4A+/holqp4HlEO6HKXItyUoM+uytHTQHRo9zQLfLK4iIaP52+8Mlgu+Xxz3dLeomgjYecmjoR1SUoZ/E3oedF4Ng7wEGGMXH8Pv/GVXliZ8ZRpb7rYjTpHZG7Sual5eqfBT5f/HBByLMCUQLhpcd+etv7EG1TV8MNPpK3WcqxRGtKUIonO+seCXS8fAw5Pf+EVhogZUDDO1UyZyR63VLv/UlS7Nz+PBeipcOc1+n7Z5jMRSwCdY0BFtw7M77TnII7D7no/2qpzP15yyiYwAo/gK9Z05oDJMzdDDMCkV7szJfXn0RRHMM0bKhaIGkl0Okpm5BK5MBXOkDWwTPwZYvE4q3I3H19NvCCi31kmhHFPPWf0c8WZDLKQGHstFmnNC1h94E2gsDQ9wg+gYlWoU4E+MWQcNswuq6B7v/rVXZqtoPQvj3UK5KoGlo5L7bO44Fl8amnH87A8fd0Y1Li5Lt7iwRDSFbZfhCTCiluS5Pklnc9QNtzowU=
+cache:
+  yarn: true
+  directories:
+  - node_modules
+branches:
+  except:
+  - build
+  - build-debug
+script:
+- yarn lint
+- yarn build
+# - yarn run check
+deploy:
+- provider: script
+  skip-cleanup: true
+  script: DEPLOY_BRANCH=build yarn deploy && yarn cozyPublish
+  on:
+    branch: master
+- provider: script
+  skip-cleanup: true
+  script: DEPLOY_BRANCH=build yarn deploy && yarn cozyPublish
+  on:
+    tags: true
+before_install:
+- openssl aes-256-cbc -K $encrypted_431c29572ce3_key -iv $encrypted_431c29572ce3_iv
+  -in github_deploy_key.enc -out /tmp/github_deploy_key -d
+- eval "$(ssh-agent -s)"
+- chmod 600 /tmp/github_deploy_key
+- ssh-add /tmp/github_deploy_key
+after_deploy:
+- rm /tmp/github_deploy_key
+- ssh-add -D
