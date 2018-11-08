@@ -3,7 +3,7 @@
   "name": "Deliveroo",
   "type": "konnector",
   "language": "node",
-  "icon": "icon.jpg",
+  "icon": "icon.svg",
   "slug": "deliveroo",
   "source": "git://github.com/konnectors/deliveroo.git",
   "editor": "Cozy",
