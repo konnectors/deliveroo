@@ -5,7 +5,7 @@
   "language": "node",
   "icon": "icon.svg",
   "slug": "deliveroo",
-  "source": "git://github.com/konnectors/deliveroo.git",
+  "source": "git@github.com:konnectors/deliveroo.git",
   "editor": "Cozy",
   "vendor_link": "https://deliveroo.fr/fr/login",
   "categories": [
