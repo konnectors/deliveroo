@@ -9,9 +9,14 @@ const {
   log,
   requestFactory
 } = require('cozy-konnector-libs')
-let request = requestFactory({
+const requestHTML = requestFactory({
   cheerio: true,
   json: false,
+  jar: true
+})
+const requestJSON = requestFactory({
+  cheerio: false,
+  json: true,
   jar: true
 })
 const URL = require('url').URL
@@ -27,7 +32,7 @@ async function start(fields) {
   await authenticate(fields.login, fields.password)
   log('info', 'Successfully logged in')
   log('info', 'Fetching the list of documents')
-  const $ = await request({
+  const $ = await requestHTML({
     uri: `${baseURL.origin}/fr/orders`
   })
   log('info', 'Parsing list of documents')
@@ -68,7 +73,7 @@ async function signin({
   validate = () => false
 }) {
   const loginurl = baseURL.href
-  const $ = await request(loginurl)
+  const $ = await requestHTML(loginurl)
   const formaction = $(formselector).attr('action')
   const formurl = `${baseURL.origin}${formaction}`
   const form = {
@@ -80,21 +85,11 @@ async function signin({
     )]: password
   }
   const headers = generateHeader($)
-  request = requestFactory({
-    cheerio: false,
-    json: true,
-    jar: true
-  })
-  const json = await request({
+  const json = await requestJSON({
     method: 'POST',
     uri: formurl,
     form,
     headers
-  })
-  request = requestFactory({
-    cheerio: true,
-    json: false,
-    jar: true
   })
   return validate(json)
 }
