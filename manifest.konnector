@@ -1,11 +1,11 @@
 {
-  "version": "1.1.2",
+  "version": "1.2.0",
   "name": "Deliveroo",
   "type": "konnector",
   "language": "node",
   "icon": "icon.svg",
   "slug": "deliveroo",
-  "source": "git://github.com/konnectors/deliveroo.git",
+  "source": "git@github.com:konnectors/deliveroo.git",
   "editor": "Cozy",
   "vendor_link": "https://deliveroo.fr/fr/login",
   "categories": [
